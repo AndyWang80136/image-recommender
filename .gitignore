@@ -5,3 +5,4 @@
 **/*.JPEG
 **/*.JPG
 **/*.sqlite3
+**/*.db.lock

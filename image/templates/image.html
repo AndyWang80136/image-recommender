@@ -1,0 +1,44 @@
+{% extends 'home.html' %}
+{% block content %}
+<div class="app-container">
+    {% if not input_img %}
+    <div class="upload-container" id="upload-container">
+        <h2> Drag and Drop image here</h2>
+    </div>
+    {% else %}
+    <div class="upload-container" id="upload-container">
+        <img src="{{ input_img.image.url }}"></img>
+    </div>
+    {% endif %}
+    <form id="img-form" action="{% url 'recommend' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="imageInput" name="images" multiple style="display: none;" accept="image/*">
+    </form>
+    <div class="btn-container bg-dark">
+        <button id="search-btn" class="btn btn-primary btn-app" type="submit" form="img-form">
+            <h4>Upload</h4>
+        </button>
+    </div>
+    {% if top1_img %}
+    <div class="target-img-container" id="target-img-container">
+        <img src="{{ top1_img.image.url }}">
+    </div>
+    {% else %}
+    <div class="target-img-container" id="target-img-container">
+        <h2> Top1 Recommended Image </h2>
+    </div>
+    {% endif %}
+    <div class="recommender-container bg-dark">
+        {% if not recommendations %}
+        <div class="text-container">
+            <h2> Other Recommended Images </h2>
+        </div>
+        {% endif %}
+        {% for image in recommendations %}
+        <div class="img-container">
+            <img src="{{ image.image.url }}" class='img-thumbnail recommendation'>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
