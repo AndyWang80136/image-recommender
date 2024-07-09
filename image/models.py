@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 
+from django.conf import settings
 from django.db import models
 
 
@@ -21,9 +22,11 @@ class Image(models.Model):
 
     def __str__(self):
         return f'{self.id}'
-    
+
     def to_query(self):
         return {
-            'image_id': str(self.id),
-            'image_url': self.image.url
-        } 
+            'image_id':
+            str(self.id),
+            'image_path':
+            self.image.name if settings.APPLY_GS else self.image.url[1:]
+        }
