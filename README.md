@@ -26,7 +26,7 @@ A Django application that recommends relevant images based on the user-uploaded 
 ### Data / Models / Algorithms
 - Image embedding by [DINOv2](https://github.com/facebookresearch/dinov2) [(Apache License 2.0)](https://github.com/facebookresearch/dinov2?tab=readme-ov-file#license)
 - Recommendation by image embedding similarity search
-- FastAPI model deployment & serving
+- Model API development & deployment by FastAPI & Uvicorn
 
 ## Installation & Usage
 ### Installation
