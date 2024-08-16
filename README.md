@@ -59,20 +59,20 @@ python manage.py runserver
 python tools/upload_img_django.py --img-dir [IMAGE_DIRECTORY]
 ```
 
-#### 4. Deploy and serve Model 
+#### 4. Deploy and serve embedding service
 ```shell
-# Model service for local file
-python deploy_services/model.py --host '127.0.0.1' --port 8001
-# Model service for GCS file
-python deploy_services/model.py --host '127.0.0.1' --port 8001 --apply-gs --gs-bucket-name $GS_BUCKET_NAME  --gs-credential $GS_CREDENTIAL
+# Embedding service for local file
+python deploy_services/embedding.py --host '127.0.0.1' --port 8001
+# Embedding service for GCS file
+python deploy_services/embedding.py --host '127.0.0.1' --port 8001 --apply-gs --gs-bucket-name $GS_BUCKET_NAME  --gs-credential $GS_CREDENTIAL
 ```
-#### 5. Create image embedding
+#### 5. Generate embedding
 ```shell
-python tools/create_embedding.py --model-url 'http://127.0.0.1' --model-port 8001 --db-file [DB_FILE]
+python tools/generate_embedding.py --embedding-url 'http://127.0.0.1' --embedding-port 8001 --db-file [DB_FILE] --save-fg-pipeline [PKL_FILE] --embedding-size [EMBEDDING_SIZE]
 ```
 #### 6. Run recommender service
 ```shell
-python deploy_services/recommender.py --host '127.0.0.1' --port 8002 --db-file [DB_FILE] --top-k [TOP_K]
+python deploy_services/recommender.py --host '127.0.0.1' --port 8002 --db-file [DB_FILE] --top-k [TOP_K] --fg-pipeline [PKL_FILE]
 ```
 
 #### 7. Application
