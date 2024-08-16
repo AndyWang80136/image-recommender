@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from loguru import logger
 from PIL import Image, ImageOps
 from pydantic import BaseModel
-from torchvision import transforms
+from torchvision.transforms import v2
 
 
 def arg_parse():
@@ -18,6 +18,7 @@ def arg_parse():
     parser.add_argument('--apply-gs', action='store_true')
     parser.add_argument('--gs-bucket-name', type=str, required=None)
     parser.add_argument('--gs-credential', type=str, required=None)
+    parser.add_argument('--image-size', type=int, default=448)
     return parser.parse_args()
 
 
@@ -52,13 +53,20 @@ class ImageInfo(BaseModel):
 app = FastAPI()
 args = arg_parse()
 
-logger.info('Start Loading DinoV2:dinov2_vitl14!')
+logger.info(f'Start Loading DinoV2:dinov2_vitb14!')
 dinov2_model = torch.hub.load('facebookresearch/dinov2',
-                              'dinov2_vitl14').to(torch.device('cuda:0'))
+                              'dinov2_vitb14').to(torch.device('cuda:0'))
+
 patch_size = dinov2_model.patch_size
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+embedding_dim = dinov2_model.embed_dim
+logger.info(
+    f'Finish Loading DinoV2:dinov2_vitb14: patch-size: {patch_size} embedding: {embedding_dim}'
+)
+
+img_transform = v2.Compose([
+    v2.Resize(size=args.image_size),
+    v2.ToTensor(),
+    v2.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
 ])
 
 logger.info('Start setting ImageLoader')
@@ -68,35 +76,40 @@ img_loader = ImageLoader(apply_gs=args.apply_gs,
 logger.info('Start Serving!')
 
 
-def calculate_size(image, target_size: int = 1024, patch_size: int = 14):
-    target_size = patch_size * (target_size // patch_size)
-    width, height = image.size
-    ratio = target_size / max(width, height)
-    resized_width = int(width * ratio)
-    resized_height = int(height * ratio)
-    if width > height:
-        resized_height = patch_size * (resized_height // patch_size)
-    elif width < height:
-        resized_width = patch_size * (resized_width // patch_size)
-    else:
-        assert resized_width == resized_height
-    return (resized_width, resized_height)
-
-
 @torch.inference_mode()
-def create_embeddings(image):
-    resized_width, resized_height = calculate_size(image)
-    image = image.resize((resized_width, resized_height))
-    trns_img = transform(image)
-    features = dinov2_model(trns_img.unsqueeze(0).to(torch.device('cuda:0')))
-    return features.view(-1).cpu().numpy()
+def create_embedding(image: Image.Image, embedding_type: str = 'image'):
+    assert embedding_type in ('image', 'patch')
+    trns_img = img_transform(image)
+    _, height, width = trns_img.size()
+    trns_img = trns_img[:, :(height // patch_size) *
+                        patch_size, :(width // patch_size) *
+                        patch_size].unsqueeze(0).to(torch.device('cuda:0'))
+    if embedding_type == 'image':
+        features = dinov2_model(trns_img)
+        grid_shape = (1, )
+    else:
+        features = dinov2_model.forward_features(
+            trns_img)['x_norm_patchtokens']
+        grid_shape = (height // patch_size, width // patch_size)
+
+    return dict(embedding=features[0].cpu().numpy().tolist(),
+                embedding_shape=(*grid_shape, features.size(-1)),
+                image_shape=[height, width],
+                patch_size=patch_size)
 
 
 @app.post('/create-image-embedding/')
 async def create_image_embedding(img_info: ImageInfo):
     image = img_loader.load(img_file=img_info.image_path)
-    img_embeddings = create_embeddings(image)
-    return {'embedding': img_embeddings.tolist()}
+    embedding_info = create_embedding(image, embedding_type='image')
+    return embedding_info
+
+
+@app.post('/create-patch-embedding/')
+async def create_patch_embedding(img_info: ImageInfo):
+    image = img_loader.load(img_file=img_info.image_path)
+    embedding_info = create_embedding(image, embedding_type='patch')
+    return embedding_info
 
 
 if __name__ == '__main__':
