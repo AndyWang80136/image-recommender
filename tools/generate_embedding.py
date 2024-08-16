@@ -26,8 +26,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 from image.models import Image
 
-IMAGE_EMBEDDING_API = '/create-image-embedding/'
-PATCH_EMBEDDING_API = '/create-patch-embedding/'
+IMAGE_EMBEDDING_API = '/generate-image-embedding/'
+PATCH_EMBEDDING_API = '/generate-patch-embedding/'
 
 
 def arg_parse():
@@ -129,7 +129,7 @@ async def get_embedding(session, url, info):
         return embedding_info
 
 
-async def create_embedding(args, img_info: List[str]):
+async def generate_embedding(args, img_info: List[str]):
     db = create_vector_db(db_file=args.db_file)
     image_embedding_url = f'{args.embedding_url}:{args.embedding_port}{IMAGE_EMBEDDING_API}'
     patch_embedding_url = f'{args.embedding_url}:{args.embedding_port}{PATCH_EMBEDDING_API}'
@@ -158,7 +158,7 @@ async def create_embedding(args, img_info: List[str]):
             'embedding': embedding,
             'image_id': image_id
         } for embedding in patch_embedding['embedding']])
-    logger.info(f'Create {len(img_info)} images embedding')
+    logger.info(f'Generate {len(img_info)} images embedding')
 
 
 if __name__ == '__main__':
@@ -166,4 +166,4 @@ if __name__ == '__main__':
     img_info = [
         image.to_query() for image in Image.objects.filter(source='example')
     ]
-    asyncio.run(create_embedding(args=args, img_info=img_info))
+    asyncio.run(generate_embedding(args=args, img_info=img_info))

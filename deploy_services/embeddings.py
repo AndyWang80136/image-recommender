@@ -77,7 +77,7 @@ logger.info('Start Serving!')
 
 
 @torch.inference_mode()
-def create_embedding(image: Image.Image, embedding_type: str = 'image'):
+def generate_embedding(image: Image.Image, embedding_type: str = 'image'):
     assert embedding_type in ('image', 'patch')
     trns_img = img_transform(image)
     _, height, width = trns_img.size()
@@ -98,17 +98,17 @@ def create_embedding(image: Image.Image, embedding_type: str = 'image'):
                 patch_size=patch_size)
 
 
-@app.post('/create-image-embedding/')
-async def create_image_embedding(img_info: ImageInfo):
+@app.post('/generate-image-embedding/')
+async def generate_image_embedding(img_info: ImageInfo):
     image = img_loader.load(img_file=img_info.image_path)
-    embedding_info = create_embedding(image, embedding_type='image')
+    embedding_info = generate_embedding(image, embedding_type='image')
     return embedding_info
 
 
-@app.post('/create-patch-embedding/')
-async def create_patch_embedding(img_info: ImageInfo):
+@app.post('/generate-patch-embedding/')
+async def generate_patch_embedding(img_info: ImageInfo):
     image = img_loader.load(img_file=img_info.image_path)
-    embedding_info = create_embedding(image, embedding_type='patch')
+    embedding_info = generate_embedding(image, embedding_type='patch')
     return embedding_info
 
 

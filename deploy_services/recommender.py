@@ -12,8 +12,8 @@ from loguru import logger
 from pydantic import BaseModel
 from pymilvus import MilvusClient
 
-IMAGE_EMBEDDING_API = 'http://127.0.0.1:8001/create-image-embedding/'
-PATCH_EMBEDDING_API = 'http://127.0.0.1:8001/create-patch-embedding/'
+IMAGE_EMBEDDING_API = 'http://127.0.0.1:8001/generate-image-embedding/'
+PATCH_EMBEDDING_API = 'http://127.0.0.1:8001/generate-patch-embedding/'
 
 
 class QueryImage(BaseModel):
