@@ -22,13 +22,13 @@ A Django application that recommends relevant images based on the user-uploaded 
     <td>
       <figure>
         <img alt="Image-Recommender-v1-step3" src="https://github.com/user-attachments/assets/4e2f3496-b773-4966-b487-99f1584bf186">
-        <figcaption>Step 3: Browse the recommended images</figcaption>
+        <figcaption>Step 3: Browse images</figcaption>
       </figure>
     </td>
     <td>
       <figure>
         <img alt="Image-Recommender-v1-step4" src="https://github.com/user-attachments/assets/2adc0914-03db-4b6e-b9fc-2e94936cc19f">
-        <figcaption>Step 4: Click Draw button, draw an area, and search</figcaption>
+        <figcaption>Step 4: Click Draw button, draw and search</figcaption>
       </figure>
     </td>
   </tr>
