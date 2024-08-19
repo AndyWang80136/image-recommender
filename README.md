@@ -1,18 +1,52 @@
 # Django Image Recommender
 A Django application that recommends relevant images based on the user-uploaded image.
 
-## Demo [[Video]](https://drive.google.com/file/d/1sLMo2zxqNzLrfcxc3NZAg3f8Hi_FK2Am/)
+## Demo [[Video]](https://drive.google.com/file/d/1aRk2uRKnTxC_2GdqQUv7C3YQ1h-ZB1CF)
 
-<img width="50%" alt="Image-Recommender-v0-step0" src="https://github.com/AndyWang80136/image-recommender/assets/14234143/b3453b5e-512d-4d1f-ba04-0e90967ac4c2">
-
-#### 1. Drag and drop an image file
-<img width="50%" alt="Image-Recommender-v0-step1" src="https://github.com/AndyWang80136/image-recommender/assets/14234143/846114cd-5c2a-4def-80b0-02da6486e093">
-
-#### 2. Generate an image imbedding on the fly and recommend relevant images.
-<img width="50%" alt="Image-Recommender-v0-step2" src="https://github.com/AndyWang80136/image-recommender/assets/14234143/f2c52110-6774-46c3-97cf-2cf3dd92d863">
-
-#### 3. Click to view the recommended image.
-<img width="50%" alt="Image-Recommender-v0-step3" src="https://github.com/AndyWang80136/image-recommender/assets/14234143/e26de34a-eb38-4df9-9b70-9e8b98f9b859">
+<table>
+  <tr>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step1" src="https://github.com/user-attachments/assets/427889f8-2888-42b1-a747-0ee32bb245de">
+        <figcaption>Step 1: Drag and drop an image file</figcaption>
+      </figure>
+    </td>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step2" src="https://github.com/user-attachments/assets/b0ffab5b-e7d5-4fec-9cd7-8bb82474434c">
+        <figcaption>Step 2: Click Search button</figcaption>
+      </figure>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step3" src="https://github.com/user-attachments/assets/4e2f3496-b773-4966-b487-99f1584bf186">
+        <figcaption>Step 3: Browse the recommended images</figcaption>
+      </figure>
+    </td>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step4" src="https://github.com/user-attachments/assets/2adc0914-03db-4b6e-b9fc-2e94936cc19f">
+        <figcaption>Step 4: Click Draw button, draw an area, and search</figcaption>
+      </figure>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step5" src="https://github.com/user-attachments/assets/619241ea-7612-4310-9c54-203ab6317d8b">
+        <figcaption>Step 5: Click Clear button to draw again</figcaption>
+      </figure>
+    </td>
+    <td>
+      <figure>
+        <img alt="Image-Recommender-v1-step6" src="https://github.com/user-attachments/assets/857f5f21-0757-4a5b-96a3-b61a7c589cf9">
+        <figcaption>Step 6: Draw another area, and search</figcaption>
+      </figure>
+    </td>
+  </tr>
+</table>
 
 ## Technical Reviews
 ### Frontend
@@ -59,20 +93,20 @@ python manage.py runserver
 python tools/upload_img_django.py --img-dir [IMAGE_DIRECTORY]
 ```
 
-#### 4. Deploy and serve Model 
+#### 4. Deploy and serve embedding service
 ```shell
-# Model service for local file
-python deploy_services/model.py --host '127.0.0.1' --port 8001
-# Model service for GCS file
-python deploy_services/model.py --host '127.0.0.1' --port 8001 --apply-gs --gs-bucket-name $GS_BUCKET_NAME  --gs-credential $GS_CREDENTIAL
+# Embedding service for local file
+python deploy_services/embedding.py --host '127.0.0.1' --port 8001
+# Embedding service for GCS file
+python deploy_services/embedding.py --host '127.0.0.1' --port 8001 --apply-gs --gs-bucket-name $GS_BUCKET_NAME  --gs-credential $GS_CREDENTIAL
 ```
-#### 5. Create image embedding
+#### 5. Generate embedding
 ```shell
-python tools/create_embedding.py --model-url 'http://127.0.0.1' --model-port 8001 --db-file [DB_FILE]
+python tools/generate_embedding.py --embedding-url 'http://127.0.0.1' --embedding-port 8001 --db-file [DB_FILE] --save-fg-pipeline [PKL_FILE] --embedding-size [EMBEDDING_SIZE]
 ```
 #### 6. Run recommender service
 ```shell
-python deploy_services/recommender.py --host '127.0.0.1' --port 8002 --db-file [DB_FILE] --top-k [TOP_K]
+python deploy_services/recommender.py --host '127.0.0.1' --port 8002 --db-file [DB_FILE] --top-k [TOP_K] --fg-pipeline [PKL_FILE]
 ```
 
 #### 7. Application
