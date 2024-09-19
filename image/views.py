@@ -32,8 +32,12 @@ def recommend_imgs(request):
     if request.method == 'POST':
         image_file = request.FILES.get('image')
         image = Image(source='user', image=image_file)
-        image.full_clean()
-        image.save()
+        md5_hash = image.generate_md5()
+        if not Image.objects.filter(md5_hash=md5_hash).exists():
+            image = Image(source='user', image=image_file, md5_hash=md5_hash)
+            image.save()
+        else:
+            image = Image.objects.get(md5_hash=md5_hash)
 
         coords_info = request.POST.get('coords')
         coords_info = json.loads(coords_info) if coords_info else None
